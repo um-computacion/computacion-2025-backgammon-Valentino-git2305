@@ -27,4 +27,8 @@ class Player(Enum):
         else:
             return range (18, 24)
         
-        '''El rango marcado en range es de 0 a 6 y de 18 a 24 porque en la funcion range (a, b) excluye b'''        
+        '''El rango marcado en range es de 0 a 6 y de 18 a 24 porque en la funcion range (a, b) excluye b'''
+
+    def  __str__(self):
+        return self.name
+    
