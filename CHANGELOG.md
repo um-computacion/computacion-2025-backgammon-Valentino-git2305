@@ -10,3 +10,5 @@
 - Cree la clase Player con atributos 'WHITE', 'BLACK', metodo '__direction__()' y '__home_range__()'.
 - Cree la calse Board con contructor y metodo 'setup()' para la posicion inicial de la fichas
 - Cree los Test para 'Player' y 'Board' usando unittest.
+## [Día 3] - 2025-08-28
+### Agregado
