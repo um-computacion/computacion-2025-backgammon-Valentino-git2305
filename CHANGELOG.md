@@ -12,6 +12,8 @@
 - Cree los Test para 'Player' y 'Board' usando unittest.
 ## [Día 3] - 2025-08-28
 ### Agregado
-- Se implementó el método reset() en la clase Board para reiniciar el estado del tablero al comienzo de una partida..
-- Se creó el método count_checkers(player) para contar la cantidad total de fichas de un jugador (tablero, barra y borne).
-- Se definió el método __str__() en Board para visualizar en consola el estado actual del tablero.
+- Implemené el método reset() en la clase Board para reiniciar el estado del tablero al comienzo de una partida..
+- Cree el método count_checkers(player) para contar la cantidad total de fichas de un jugador (tablero, barra y borne).
+- Definí el método __str__() en Board para visualizar en consola el estado actual del tablero.
+- Agregué el test de __reset_board__ y el de __str_board__.
+- Intalé coverage y lo agregué a la carpeta requierments.txt.

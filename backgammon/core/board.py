@@ -1,4 +1,3 @@
-
 class Board:
     '''Tablero:
        24 puntos enumerados del 0 al 23
@@ -15,7 +14,7 @@ class Board:
         self.__bar__ = {Player.WHITE: [], Player.BLACK: []}
         self.__brone__={Player.WHITE: [], Player.BLACK: []}
     
-    def setup(self):
+    def __setup__(self):
         """Posicion de las fichas al comienzo de la partida"""
         self.__points__[0] = [Player.BLACK] * 2
         self.__points__[5] = [Player.WHITE] * 5
@@ -26,7 +25,7 @@ class Board:
         self.__points__[18] = [Player.BLACK] * 5
         self.__points__[23] = [Player.WHITE] * 2
 
-    def reset(self):
+    def __reset__(self):
         """Reinicia el tablero a la posicion inicial"""
         self.__points__=[[] for _ in range(24)]
         self.__bar__={Player.WHITE:[], Player.BLACK:[]}
@@ -41,7 +40,7 @@ class Board:
         self.__points__[18] = [Player.BLACK] * 5
         self.__points__[23] = [Player.WHITE] * 2
 
-    def count_checkers(self, player):
+    def __count_checkers__(self, player):
         """Cuenta las fichas de cada jugador en el tablero, barra y brone"""
         total=0
 

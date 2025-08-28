@@ -15,5 +15,9 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(list(Player.WHITE.__home_range__()), [0, 1, 2, 3, 4, 5])
         self.assertEqual(list(Player.BLACK.__home_range__()), [18, 19, 20, 21, 22, 23])
 
+    def test_str_representation(self):
+        self.assertEqual(str(Player.WHITE),"WHITE")
+        self.assertEqual(str(Player.BLACK),"BLACK")
+
 if __name__ == "__main__":
     unittest.main()

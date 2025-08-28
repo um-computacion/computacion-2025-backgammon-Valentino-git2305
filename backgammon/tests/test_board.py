@@ -21,7 +21,7 @@ class TestBoard(unittest.TestCase):
     
     def test_setup_board(self): #Cheque que el todas las fichas esten en los lugares correspondientes como lo indica el reglamento.
         tablero = Board()
-        tablero.setup()
+        tablero.__setup__()
 
         self.assertEqual(tablero.__points__[0], [Player.BLACK] * 2)
         self.assertEqual(tablero.__points__[5], [Player.WHITE] * 5)
@@ -31,6 +31,42 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(tablero.__points__[16], [Player.BLACK] * 3)
         self.assertEqual(tablero.__points__[18], [Player.BLACK] * 5)
         self.assertEqual(tablero.__points__[23], [Player.WHITE] * 2)
+
+    def test_count_checkers(self):
+        tablero = Board()
+        tablero.__setup__()
+
+        self.assertEqual(tablero.__count_checkers__(Player.WHITE), 15)
+        self.assertEqual(tablero.__count_checkers__(Player.BLACK), 15)
+
+    def test_reset_board(self):
+        tablero = Board()
+        tablero.__reset__()
+
+        self.assertEqual(tablero.__count_checkers__(Player.WHITE), 15)
+        self.assertEqual(tablero.__count_checkers__(Player.BLACK), 15)
+
+        self.assertEqual(tablero.__points__[0], [Player.BLACK] * 2)
+        self.assertEqual(tablero.__points__[5], [Player.WHITE] * 5)
+        self.assertEqual(tablero.__points__[7], [Player.WHITE] * 3)
+        self.assertEqual(tablero.__points__[11], [Player.BLACK] * 5)
+        self.assertEqual(tablero.__points__[12], [Player.WHITE] * 5)
+        self.assertEqual(tablero.__points__[16], [Player.BLACK] * 3)
+        self.assertEqual(tablero.__points__[18], [Player.BLACK] * 5)
+        self.assertEqual(tablero.__points__[23], [Player.WHITE] * 2)
+
+    def test_str_board(self):
+        tablero = Board()
+        tablero.__reset__
+        output =str(tablero)
+
+        self.assertIsInstance(output, str)
+        
+        lineas = output.strip().split("\n")
+        self.assertEqual(len(lineas), 24)
+
+        self.assertTrue(lineas[0].startswith("0:"))
+        self.assertTrue(lineas[-1].startswith("23:"))
 
 if __name__ == "__main__":
     unittest.main()
