@@ -12,31 +12,31 @@ class Board:
     def __init__(self):#Inicializa un tabelro vacio con barra y borne por Player        
         self.__points__=[ [] for _ in range(24) ]
         self.__bar__ = {Player.WHITE: [], Player.BLACK: []}
-        self.__brone__={Player.WHITE: [], Player.BLACK: []}
+        self.__borne__={Player.WHITE: [], Player.BLACK: []}
     
     def __setup__(self):#Posicion de las fichas al comienzo de la partida
         self.__points__[0] = [Checker(Player.BLACK) for _ in range(2)]
         self.__points__[5] = [Checker(Player.WHITE) for _ in range(5)]
-        self.__points__[7] = [Checker(Player.WHITE) for _ in range (3)]
-        self.__points__[11] = [Checker(Player.BLACK) for _ in range (5)]
-        self.__points__[12] = [Checker(Player.WHITE) for _ in range (5)]
-        self.__points__[16] = [Checker(Player.BLACK) for _ in range (3)]
+        self.__points__[7] = [Checker(Player.WHITE) for _ in range(3)]
+        self.__points__[11] = [Checker(Player.BLACK) for _ in range(5)]
+        self.__points__[12] = [Checker(Player.WHITE) for _ in range(5)]
+        self.__points__[16] = [Checker(Player.BLACK) for _ in range(3)]
         self.__points__[18] = [Checker(Player.BLACK) for _ in range(5)]
         self.__points__[23] = [Checker(Player.WHITE) for _ in range(2)]
 
     def __reset__(self):#Reinicia el tablero a la posicion inicial
         self.__points__=[[] for _ in range(24)]
         self.__bar__={Player.WHITE:[], Player.BLACK:[]}
-        self.__brone__={Player.WHITE:[], Player.BLACK:[]}
+        self.__borne__={Player.WHITE:[], Player.BLACK:[]}
 
-        self.__points__[0] = [Player.BLACK] * 2
-        self.__points__[5] = [Player.WHITE] * 5
-        self.__points__[7] = [Player.WHITE] * 3
-        self.__points__[11] = [Player.BLACK] * 5
-        self.__points__[12] = [Player.WHITE] * 5
-        self.__points__[16] = [Player.BLACK] * 3
-        self.__points__[18] = [Player.BLACK] * 5
-        self.__points__[23] = [Player.WHITE] * 2
+        self.__points__[0] = [Checker(Player.BLACK) for _ in range(2)]
+        self.__points__[5] = [Checker(Player.WHITE) for _ in range(5)]
+        self.__points__[7] = [Checker(Player.WHITE) for _ in range(3)]
+        self.__points__[11] = [Checker(Player.BLACK) for _ in range(5)]
+        self.__points__[12] = [Checker(Player.WHITE) for _ in range(5)]
+        self.__points__[16] = [Checker(Player.BLACK) for _ in range(3)]
+        self.__points__[18] = [Checker(Player.BLACK) for _ in range(5)]
+        self.__points__[23] = [Checker(Player.WHITE) for _ in range(2)]
     
     def owner_at(self, idx: int):#Nos sirve para ver que fiicha hay en un punto.
         pile = self.__points__[idx]
@@ -59,15 +59,12 @@ class Board:
         return src +direction * die
 
 
-    def __count_checkers__(self, player):#Cuenta las fichas de cada jugador en el tablero, barra y brone
+    def __count_checkers__(self, player: Player) -> int:#Cuenta las fichas de cada jugador en el tablero, barra y brone
         total=0
-
         for point in self.__points__:
-            total += point.count(player)
-
+            total += sum(1 for c in point if getattr(c, "owner", None) == player)
         total += len(self.__bar__[player])
-        total += len(self.__brone__[player])
-
+        total += len(self.__borne__[player])
         return total
     
     def __str__(self):#Nos da en texto como esta el tablero
@@ -75,9 +72,10 @@ class Board:
 
         for i, point in enumerate(self.__points__):
             if point:
-                owner = point[0].name
+                owner = point[0].owner.name
+                color = point[0].color.name
                 cantidad = len(point)
-                output.append(f"{i:2d}: {cantidad} ficha(s) de {owner}")
+                output.append(f"{i:2d}: {cantidad} ficha(s) de {owner} ({color})")
             else:
                 output.append(f"{i:2d}: vacio")
         
