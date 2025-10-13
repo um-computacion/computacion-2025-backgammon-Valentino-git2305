@@ -6,7 +6,6 @@ class Board:
     
 from backgammon.core.player import Player
 from backgammon.core.checker import Checker
-from backgammon.core.exceptions import IllegalMoves
 
 class Board:
     def __init__(self):#Inicializa un tabelro vacio con barra y borne por Player        
