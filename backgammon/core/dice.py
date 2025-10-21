@@ -1,5 +1,5 @@
 import random #Lo importamos para poder utilizar funciones con las cuales generemos números aleatorios 
-from backgammon.core.game import Game
+
 
 class Dice:
     def __init__(self):
