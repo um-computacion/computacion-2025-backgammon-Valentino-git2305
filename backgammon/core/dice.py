@@ -1,4 +1,5 @@
 import random #Lo importamos para poder utilizar funciones con las cuales generemos números aleatorios 
+from backgammon.core.game import Game
 
 class Dice:
     def __init__(self):
@@ -49,5 +50,3 @@ class Dice:
         if self.is_double():
             s += " (doble)"#Le suma a s el texto "(doble)"
         return s
-
-
