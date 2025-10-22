@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 import random
 from backgammon.core.dice import Dice
 
@@ -22,7 +23,15 @@ class TestDice (unittest.TestCase):
         #property values expone la tupla y coincide con el estado
         self.assertEqual(d.values, tuple(vals))
         self.assertIsInstance(d.values, tuple)
-    
+
+    def test_roll_generates_valid_values_with_patch(self):
+        """Prueba que roll usa random.randint y devuelve los valores esperados"""
+        d = Dice()
+        with patch("backgammon.core.dice.random.randint", side_effect=[4, 2]):
+            vals = d.roll()
+        self.assertEqual(vals, [4, 2])
+        self.assertEqual(d.values, (4, 2))
+
     def test_is_double_detection(self):
         """Verfica que is_double detecte correctamente un doble"""
         d = Dice()
@@ -32,6 +41,20 @@ class TestDice (unittest.TestCase):
         self.assertFalse(d.is_double())
         d.__values__ = [0, 0]
         self.assertFalse(d.is_double())
+
+    def test_str_representation_with_patch(self):
+        """Prueba la representacion de los dados en texto con patch"""
+        d = Dice()
+        with patch("backgammon.core.dice.random.randint", side_effect=[6, 6]):
+            d.roll()
+        s =str(d)
+        self.assertIn("6 - 6", s)
+        self.assertIn("(doble)", s)
+
+    def test_str_before_roll(self):
+        """Debe mostrar "falta tirar" antes de la primera tirada"""
+        d = Dice()
+        self.assertEqual(str(d), "Falta tirar")
     
     def test_str_representation(self):
         """Comprueba la presentacion de los textos"""
@@ -44,12 +67,11 @@ class TestDice (unittest.TestCase):
     def test_reset(self):
         """Verifica que el reset() resetee los valores correctamente """
         d=Dice()
-        d.__values____ = [5, 2]
+        d.__values__ = [5, 2]
         d.reset()
         self.assertEqual(d.values, (0, 0))
         self.assertEqual(str(d), "Falta tirar")
         self.assertFalse(d. is_double())
-
 
 if __name__ == "__main__":
     unittest.main()
