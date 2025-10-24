@@ -1,6 +1,9 @@
 from backgammon.core.board import Board
 from backgammon.core.dice import Dice
 from backgammon.core.player import Player
+from backgammon.core.exceptions import(
+    GameNotStrated, GameAlredyStarted, GameFinished, DiceAlreadyRolled, DiceNotRolled
+    ) 
 import random
 
 class Game :
@@ -24,6 +27,9 @@ class Game :
         """
         Inicia la Partida
         """
+        if self.__started__ and not self.__finished__:
+            raise GameAlredyStarted()
+
         self.__board__.__reset__()
         self.__dice__.reset()
         self.__started__ = True
@@ -92,7 +98,11 @@ class Game :
         Tira los dados del turno correspondiente y nos devuelve los valores 
         """
         if not self.__started__:
-            raise ValueError("La partida no fue iniciada, Comienza una partida para lanzar los dados.")
+            raise GameNotStrated()
+        if self.__finished__:
+            raise GameFinished()
+        if self.__dice__.values !=(0, 0):
+            raise DiceAlreadyRolled()
         vals = self.__dice__.roll()
         self.__history__.append(f"{self.__current_player__.name} roll: {vals[0]}-{vals[1]}")
         return vals
@@ -101,6 +111,12 @@ class Game :
         """
         Pasa el turno al siguiente player
         """
+        if not self.__started__:
+            raise GameNotStrated()
+        if self.__started__:
+            raise GameAlredyStarted()
+        if self.__dice__.values == (0, 0):
+            raise DiceNotRolled
         if not self.__started__ or self.__finished__:
             return
         self.__current_player__ = Player.BLACK if self.__current_player__ is Player.WHITE else Player.WHITE

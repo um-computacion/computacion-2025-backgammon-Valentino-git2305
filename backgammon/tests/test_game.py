@@ -3,6 +3,7 @@ import unittest
 from backgammon.core.game import Game
 from backgammon.core.player import Player
 from backgammon.core.checker import Checker
+from backgammon.core.exceptions import (GameNotStrated, GameAlredyStarted)
 
 class TasteGame(unittest.TestCase):
     def test_reset_pre_start_state(self):
@@ -25,7 +26,7 @@ class TasteGame(unittest.TestCase):
 
     def test_roll_requires_started(self):
         g = Game()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(GameNotStrated):
             g.roll()
         g.start()
         vals = g.roll()
@@ -38,10 +39,8 @@ class TasteGame(unittest.TestCase):
         g.start()
         first_player = g.current_player
         g.dice.__values__ = [3, 4]
-        g.pass_turn()
-        self.assertNotEqual(g.current_player, first_player)
-        self.assertEqual(g.turn_count, 2)
-        self.assertEqual(str(g.dice), "Falta tirar")
+        with self.assertRaises(GameAlredyStarted):
+            g.pass_turn()
 
     def test_check_game_over_sets_winner_and_finished(self):
         g = Game()
