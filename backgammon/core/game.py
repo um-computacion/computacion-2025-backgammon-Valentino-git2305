@@ -101,7 +101,7 @@ class Game :
             raise GameNotStrated()
         if self.__finished__:
             raise GameFinished()
-        if self.__dice__ !=(0, 0):
+        if self.__dice__.values !=(0, 0):
             raise DiceAlreadyRolled()
         vals = self.__dice__.roll()
         self.__history__.append(f"{self.__current_player__.name} roll: {vals[0]}-{vals[1]}")
