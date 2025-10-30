@@ -37,11 +37,13 @@ class Game :
         self.__winner__ = None
         self.__turn_count__ = 1
 
-        while True:
+        for _ in range(100):
             white_roll = random.randint(1, 6)
             black_roll = random.randint(1, 6)
             if white_roll != black_roll:
                 break
+        else:
+            raise RuntimeError("Sorteo inicial no resolvió en 100 intentos")
         self.__current_player__ = (
             Player.WHITE if white_roll > black_roll else Player.BLACK
         )
@@ -113,13 +115,12 @@ class Game :
         """
         if not self.__started__:
             raise GameNotStrated()
-        if self.__started__:
-            raise GameAlredyStarted()
+        if self.__finished__:
+            return 
         if self.__dice__.values == (0, 0):
             raise DiceNotRolled
-        if not self.__started__ or self.__finished__:
-            return
-        self.__current_player__ = Player.BLACK if self.__current_player__ is Player.WHITE else Player.WHITE
+        
+        self.__current_player__ =(Player.BLACK if self.__current_player__ is Player.WHITE else Player.WHITE)
         self.__turn_count__ += 1
         self.__dice__.reset()
         self.__history__.append(f"Turno: Ahora juega {self.__current_player__.name}")
