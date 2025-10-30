@@ -1,7 +1,7 @@
 [run]
 branch = True
 source =
-    backgammon
+    backgammon/core
 omit =
     backgammon/tests/*
     backgammon/cli/cli.py
@@ -12,6 +12,19 @@ omit =
     env/*
     backgammon/__init__.py
     backgammon/core/__init__.py
+    backgammon/tests/*
+    backgammon/cli/*
+    backgammon/pygame_ui/*
+    **/__pycache__/*
+    **/.venv/*
+    backgammon/__init__.py
+     */tests/*
+    backgammon/cli/*
+    backgammon/pygame_ui/*
+    backgammon/__init__.py
+    backgammon/pygame_ui/main.py
+
+
 
 [report]
 show_missing = True
@@ -25,3 +38,4 @@ omit =
     env/*
     backgammon/__init__.py
     backgammon/core/__init__.py
+    backgammon/pygame_ui/main.py
