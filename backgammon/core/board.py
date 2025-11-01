@@ -138,6 +138,66 @@ class Board:
         checker = self.__points__[src].pop()
         self.__points__[dst].append(checker)
 
+    def ascii(self):
+        """
+        Dibuja un tablero ASCII al estilo backgammon
+        """
+        def col_symbol(idx: int) -> list[str]:
+            pile = self.__points__[idx]
+            #Nos va a mostrar los simbolos x chekcer
+            symbols = [("W" if c.owner.name == "WHITE" else "B") for c in pile]
+            #Hasta 5 visibles
+            visible = symbols[:5]
+            return visible
+        
+        #Mapas de columnas (12 arriba, 24 abajo)
+        top_idxs = list(range(12, 24))
+        bot_idxs = list(range(11, -1. -1))
+
+        #Contruí columnas de 5 filas(con topes)
+        max_rows = 5
+        top_cols = [col_symbol(i) for i in top_idxs]
+        top_cols = [col_symbol(i) for i in bot_idxs]
+
+        # Encabezados de números de punto (como se ve en un tablero real)
+        top_labels = [f"{i+1:>2}" for i in range(12, 24)]    
+        bot_labels = [f"{i+1:>2}" for i in range(11, -1, -1)]
+
+        # Función para apilar visualmente una fila dada
+        def build_row(cols: list[list[str]], row_from_top: int, filler: str = ' ') -> str:
+            # row_from_top: 0 es la "capa" más alta
+            cells = []
+            for col in cols:
+                char = col[row_from_top] if row_from_top < len(col) else filler
+                cells.append(f" {char} ")
+            return "|" + "|".join(cells) + "|"
+
+        # Top panel
+        lines = []
+        lines.append("         " + " ".join(top_labels))
+        lines.append("        " + "-" * (len(top_labels) * 3 + (len(top_labels) - 1)))
+
+        for r in range(max_rows):
+            lines.append(build_row(top_cols, r))
+
+        # Línea central: BAR y BORNE
+        w_bar = len(self.__bar__[Player.WHITE])
+        b_bar = len(self.__bar__[Player.BLACK])
+        w_borne = len(self.__borne__[Player.WHITE])
+        b_borne = len(self.__borne__[Player.BLACK])
+
+        center = f"   BAR: W={w_bar} B={b_bar}   |   BORNE: W={w_borne} B={b_borne}"
+        lines.append(center)
+
+        # Bottom panel (se dibuja de abajo hacia arriba)
+        for r in range(max_rows - 1, -1, -1):
+            lines.append(build_row(bot_cols, r))
+
+        lines.append("        " + "-" * (len(bot_labels) * 3 + (len(bot_labels) - 1)))
+        lines.append("         " + " ".join(bot_labels))
+
+        return "\n".join(lines)
+
     def __str__(self):#Nos da en texto como esta el tablero
         output = []
 
