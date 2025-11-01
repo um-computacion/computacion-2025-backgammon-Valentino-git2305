@@ -22,10 +22,15 @@ class Game :
         self.__winner__ = None
         self.__turn_count__ = 0
         self.__history__ = []
+        self.__players_info__ = {}
     
     def start(self):
         """
         Inicia la Partida
+        """
+        """
+        Inicia la partida, pero deja pendiente el sorteo inicial
+        hasta que el usuario haga 'roll'.
         """
         if self.__started__ and not self.__finished__:
             raise GameAlredyStarted()
@@ -37,21 +42,10 @@ class Game :
         self.__winner__ = None
         self.__turn_count__ = 1
 
-        for _ in range(100):
-            white_roll = random.randint(1, 6)
-            black_roll = random.randint(1, 6)
-            if white_roll != black_roll:
-                break
-        else:
-            raise RuntimeError("Sorteo inicial no resolvió en 100 intentos")
-        self.__current_player__ = (
-            Player.WHITE if white_roll > black_roll else Player.BLACK
-        )
-        self.__dice__.reset()
-        self.__history__.append(
-            f"Game: Start = WHITE {white_roll} vs BLACK {black_roll} /"
-            f"Comienza {self.__current_player__.name}"
-        )
+        self.__current_player__ = None        # <<< clave: aún no hay jugador
+        self.__needs_opening_roll__ = True    # <<< sorteo pendiente
+
+        self.__history__.append("Game: Start (esperando sorteo con 'roll')")
 
     def reset(self):
         """
@@ -97,16 +91,33 @@ class Game :
     
     def roll(self):
         """
-        Tira los dados del turno correspondiente y nos devuelve los valores 
+        Si hay sorteo pendiente, tira WHITE/BLAK hasta desempatar,
+        fija quién arranca y devuelve [white, black].
+        Si ya hay current_player, es una tirada normal del turno.
         """
         if not self.__started__:
             raise GameNotStrated()
         if self.__finished__:
             raise GameFinished()
-        if self.__dice__.values !=(0, 0):
+
+        if self.__current_player__ is None:
+            w = random.randint(1, 6)
+            b = random.randint(1, 6)
+            while w == b:
+                w = random.randint(1, 6)
+                b = random.randint(1, 6)
+            self.__current_player__ = Player.WHITE if w > b else Player.BLACK
+            self.__history__.append(
+                f"Draw: WHITE {w} vs BLACK {b} -> {self.__current_player__.name} starts"
+            )
+            self.__dice__.reset()
+            return[w, b]
+        if self.__dice__.values != (0, 0):
             raise DiceAlreadyRolled()
         vals = self.__dice__.roll()
-        self.__history__.append(f"{self.__current_player__.name} roll: {vals[0]}-{vals[1]}")
+        self.__history__.append(
+            f"{self.__current_player__.name} roll: {vals[0]}-{vals[1]}"
+        )
         return vals
     
     def pass_turn(self):
@@ -135,20 +146,47 @@ class Game :
             self.__finished__ = True
             self.__winner__ = Player.WHITE if white_out else Player.BLACK
             self.__history__.append(f"Game: Terminó, (Winner {self.__winner__.name})")
+        else:
+            self.__finished__ = False
+            self.__winner__ = None
+    
+    def setup_players(self, who_is_white: str, who_is_black:str) -> None:
+        """
+        Define los nombres de los jugadoer segun el tablero (WHITE/BLACK)
+        Debe llamarse antes de start() si queres nombres personalizados 
+        """
+        self.__players_info__ = {
+            "WHITE": who_is_white.strip() or "Jugador Blanco",
+            "BLACK": who_is_black.strip() or "Jugador Negro"
+        }
+        self.__history__.append(
+            f"Jugadores: WHITE={self.__players_info__["WHITE"]} / BLACK={self.__players_info__["BLACK"]}"
+        )
+    
+    def get_player_name(self, player: Player) -> str:
+        """
+        Devuelve el nombre del jugador segun su Player
+        """
+        return self.__players_info__.get(player.name, player.name)
         
     def __str__(self):
         """
-        Vista resumida del juego sobre quien juega, el estado de los dados, si alguien gano y quien
+        Vista resumida del juego
         """
         status = []
         status.append(f"Turno #{self.__turn_count__}" if self.__started__ else "Partida no iniciada")
         if self.__started__:
-            status.append(f"Juega: {self.__current_player__.name}")
+            if self.__current_player__ is None:
+               status.append("Juega: — (falta sorteo)")
+            else:
+                status.append(f"Juega: {self.__current_player__.name}")
             status.append(f"Dados: {str(self.__dice__)}")
             if self.__finished__:
                 status.append(f"Ganador: {self.__winner__.name}")
         return " | ".join(status)
-    
+
+        status.append(f"Juega: {self.get_player_name(self.__current_player__)}")
+
     def history(self):
         """
         Nos devuelve una copia de los eventos registrados

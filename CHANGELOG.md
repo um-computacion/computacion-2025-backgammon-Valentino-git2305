@@ -17,3 +17,5 @@
 - Definí el método __str__() en Board para visualizar en consola el estado actual del tablero.
 - Agregué el test de __reset_board__ y el de __str_board__.
 - Intalé coverage y lo agregué a la carpeta requierments.txt.
+### [2 Días para la entrega final] - 2025-10-30
+-Se hicieron muchas cosas, tantas que ni me acuerdo pero bueno son las 15:50 y estoy arrancando el CLI hoy lo termino asi ya hoy mimso arranco con el pygame.
