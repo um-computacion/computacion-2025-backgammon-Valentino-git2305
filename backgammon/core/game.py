@@ -100,32 +100,24 @@ class Game :
         if self.__finished__:
             raise GameFinished()
 
-        # --- Sorteo pendiente ---
-        if self.__needs_opening_roll__ or self.__current_player__ is None:
-            while True:
-                white = random.randint(1, 6)
-                black = random.randint(1, 6)
-                if white != black:
-                    break
-            self.__current_player__ = Player.WHITE if white > black else Player.BLACK
-            self.__needs_opening_roll__ = False
-            self.__dice__.reset()  # aseguramos que no quede tirada previa
+        if self.__current_player__ is None:
+            w = random.randint(1, 6)
+            b = random.randint(1, 6)
+            while w == b:
+                w = random.randint(1, 6)
+                b = random.randint(1, 6)
+            self.__current_player__ = Player.WHITE if w > b else Player.BLACK
             self.__history__.append(
-                f"Start Roll: WHITE {white} vs BLACK {black} -> "
-                f"Comienza {self.__current_player__.name}"
+                f"Draw: WHITE {w} vs BLACK {b} -> {self.__current_player__.name} starts"
             )
-            return [white, black]
-
-        self.__history__.append(
-            f"{self.get_player_name(self.__current_player__)} roll: {vals[0]}-{vals[1]}"
-        )
-
-        # Tirada normal 
+            self.__dice__.reset()
+            return[w, b]
         if self.__dice__.values != (0, 0):
             raise DiceAlreadyRolled()
-
         vals = self.__dice__.roll()
-        self.__history__.append(f"{self.__current_player__.name} roll: {vals[0]}-{vals[1]}")
+        self.__history__.append(
+            f"{self.__current_player__.name} roll: {vals[0]}-{vals[1]}"
+        )
         return vals
     
     def pass_turn(self):
@@ -154,10 +146,9 @@ class Game :
             self.__finished__ = True
             self.__winner__ = Player.WHITE if white_out else Player.BLACK
             self.__history__.append(f"Game: Terminó, (Winner {self.__winner__.name})")
-
-        self.__history__.append(
-            f"Game: Terminó, (Winner {self.get_player_name(self.__winner__)})"
-        )
+        else:
+            self.__finished__ = False
+            self.__winner__ = None
     
     def setup_players(self, who_is_white: str, who_is_black:str) -> None:
         """

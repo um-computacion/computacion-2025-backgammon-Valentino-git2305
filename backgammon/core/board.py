@@ -54,10 +54,9 @@ class Board:
     def entry_index_from_bar(self, player: Player, die:int) -> int:#Nos sive para que un jugador pueda volver al juego si le comieron una ficha.
         return (die -1) if player is Player.WHITE else (24 - die)
     
-    def dest_index(self, player:Player, src: int, die:int) -> int:#Nos sirve para calcular el punto donde va a terminar la ficha, las blancas+1 negras-1.
-        direction = 1 if player is Player.WHITE else -1
-        return src +direction * die
-
+    def dest_index(self, player:Player, src: int, die:int) -> int:
+        direction = -1 if player is Player.WHITE else +1
+        return src + direction * die
 
     def __count_checkers__(self, player: Player) -> int:#Cuenta las fichas de cada jugador en el tablero, barra y brone
         total=0
@@ -71,7 +70,10 @@ class Board:
         return len(self.__bar__[player]) > 0
 
     def home_range (self, player:Player) -> range:#Nos devuelve el home range de cada player
-        return range(18, 24) if player is Player.WHITE else range (0, 6)
+        return range(0, 6) if player is Player.WHITE else range (18, 24)
+    
+    def direction(self, player: Player) -> int:
+        return -1 if player is Player.WHITE else +1
     
     def can_bear_off(self, player:Player) -> bool:
         """
@@ -87,56 +89,70 @@ class Board:
                 return False
         return True
     
-    def move(self, player: Player, src: int | None, die: int):
-        """
-        Mueve una fihca del player usando el dado.
-        """
-        if self.has_in_bar(player):
-            if src is not None:
+    def move(self, player: Player, src: int | None, die: int) -> None:
+        MAX_STACK = 5
+        if src is not None and self.has_in_bar(player):
+            raise MustEnterFromBar()
+
+        if src is None:
+            if not self.__bar__[player]:
                 raise MustEnterFromBar()
-            dst = self.entry_index_from_bar(player, die)
-            if not (0 <= dst < 24):
-                raise EntryBlocked()
-            if self.is_blocked_for(player, dst):
-                raise EntryBlocked()
-        
-            opp = Player.BLACK if player is Player.WHITE else Player.WHITE
-            if self.owner_at(dst) is opp and self.count_at(dst) == 1:
-               beaten = self.__points__[dst].pop()
-               self.__bar__[opp].append(beaten)
+            checker = self.__bar__[player].pop()
+            src_index = None
+            dest = self.entry_index_from_bar(player, die)
 
-            checker = self.__bar__[player].pop() if self.__bar__[player] else Checker(player)
-            self.__points__[dst].append(checker)
-            return
-        
-        if src is None or not (0 <= src < 24):
-            raise NoCheckerAtPoint()
-        if self.count_at(src) == 0 or self.owner_at(src) is not player:
-            raise NoCheckerAtPoint()
-        
-        dst = self.dest_index(player, src, die)
+        else:
+            if src < 0 or src > 23:
+                raise ValueError("Índice inválido")
+            pile = self.__points__[src]
+            if not pile or pile[-1].owner != player:
+                raise NoCheckerAtPoint()
+            checker = pile.pop()
+            src_index = src
+            if player is Player.WHITE:
+                dest = src - die
+            else:
+                dest = src + die
 
-        if dst < 0 or dst > 23:
+        if dest < 0 and player is Player.WHITE:
             if not self.can_bear_off(player):
                 raise BearOffNotAllowed()
-            exact_src = (23 - (die - 1)) if player is Player.WHITE else (0 + (die-1))
-            if src != exact_src:
-                raise BearOffNotAllowed()
-            checker = self.__points__[src].pop()
             self.__borne__[player].append(checker)
             return
-        
-        if self.is_blocked_for(player, dst):
-            raise PointBlocked()
-        
-        opp = Player.BLACK if player is Player.WHITE else Player.WHITE
+        if dest > 23 and player is Player.BLACK:
+            if not self.can_bear_off(player):
+                raise BearOffNotAllowed()
+            self.__borne__[player].append(checker)
+            return
 
-        if self.owner_at(dst) is opp and self.count_at(dst) == 1:
-            beaten = self.__points__[dst].pop()
-            self.__bar__[opp].append(beaten)
-        
-        checker = self.__points__[src].pop()
-        self.__points__[dst].append(checker)
+        if dest < 0 or dest > 23:
+            raise ValueError("Destino fuera del tablero")
+
+        dest_pile = self.__points__[dest]
+
+        if dest_pile and dest_pile[-1].owner is not player and len(dest_pile) == 1:
+            beaten = dest_pile.pop()
+            opponent = Player.BLACK if player is Player.WHITE else Player.WHITE
+            self.__bar__[opponent].append(beaten)
+
+        if dest_pile and dest_pile[-1].owner is not player and len(dest_pile) >= 2:
+            if src_index is None:
+                self.__bar__[player].append(checker)
+                raise EntryBlocked()
+            else:
+                self.__points__[src_index].append(checker)
+                raise PointBlocked()
+
+        if dest_pile and dest_pile[-1].owner is player and len(dest_pile) >= MAX_STACK:
+            if src_index is None:
+                self.__bar__[player].append(checker)
+            else:
+                self.__points__[src_index].append(checker)
+            from backgammon.core.exceptions import IllegalMoves
+            raise IllegalMoves("No podés tener más de 5 fichas en un punto.")
+
+        dest_pile.append(checker)
+
 
     def ascii(self):
         """
@@ -149,30 +165,24 @@ class Board:
             #Hasta 5 visibles
             visible = symbols[:5]
             return visible
-        
-        #Mapas de columnas (12 arriba, 24 abajo)
+
         top_idxs = list(range(12, 24))
-        bot_idxs = list(range(11, -1. -1))
+        bot_idxs = list(range(11, -1, -1))
 
         #Contruí columnas de 5 filas(con topes)
         max_rows = 5
         top_cols = [col_symbol(i) for i in top_idxs]
-        top_cols = [col_symbol(i) for i in bot_idxs]
-
-        # Encabezados de números de punto (como se ve en un tablero real)
+        bot_cols = [col_symbol(i) for i in bot_idxs]
         top_labels = [f"{i+1:>2}" for i in range(12, 24)]    
         bot_labels = [f"{i+1:>2}" for i in range(11, -1, -1)]
+        bot_cols = []
 
-        # Función para apilar visualmente una fila dada
         def build_row(cols: list[list[str]], row_from_top: int, filler: str = ' ') -> str:
-            # row_from_top: 0 es la "capa" más alta
             cells = []
             for col in cols:
                 char = col[row_from_top] if row_from_top < len(col) else filler
                 cells.append(f" {char} ")
             return "|" + "|".join(cells) + "|"
-
-        # Top panel
         lines = []
         lines.append("         " + " ".join(top_labels))
         lines.append("        " + "-" * (len(top_labels) * 3 + (len(top_labels) - 1)))
@@ -180,7 +190,6 @@ class Board:
         for r in range(max_rows):
             lines.append(build_row(top_cols, r))
 
-        # Línea central: BAR y BORNE
         w_bar = len(self.__bar__[Player.WHITE])
         b_bar = len(self.__bar__[Player.BLACK])
         w_borne = len(self.__borne__[Player.WHITE])
@@ -189,7 +198,6 @@ class Board:
         center = f"   BAR: W={w_bar} B={b_bar}   |   BORNE: W={w_borne} B={b_borne}"
         lines.append(center)
 
-        # Bottom panel (se dibuja de abajo hacia arriba)
         for r in range(max_rows - 1, -1, -1):
             lines.append(build_row(bot_cols, r))
 
