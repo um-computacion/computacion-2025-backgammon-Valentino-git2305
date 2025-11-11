@@ -162,7 +162,7 @@ class Game :
         self.__history__.append(
             f"Jugadores: WHITE={self.__players_info__["WHITE"]} / BLACK={self.__players_info__["BLACK"]}"
         )
-    
+        
     def get_player_name(self, player: Player) -> str:
         """
         Devuelve el nombre del jugador segun su Player

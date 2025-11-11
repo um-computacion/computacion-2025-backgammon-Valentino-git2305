@@ -1,5 +1,5 @@
 import shlex
-from typing import List, Optional
+from typing import List
 from backgammon.core.game import Game
 from backgammon.core.player import Player
 from backgammon.core.checker import CheckerColor
@@ -76,48 +76,7 @@ class CLI:
         return f"{ch}{n}"
 
     def _board_ascii(self) -> str:
-       board = self.game.board
-
-       def cell(i: int) -> str:
-           owner = board.owner_at(i)   # debe existir en Board (abajo te muestro cómo si no lo tenés)
-           if owner is None:
-               return ".."
-           ch = "W" if owner is Player.WHITE else "B"
-           n = board.count_at(i)
-           n = n if n <= 9 else 9
-           return f"{ch}{n}"
-
-       top_idx = list(range(12, 24))         # 12..23
-       bot_idx = list(range(11, -1, -1))     # 11..0
-
-       idx_top_line = " ".join(f"{i:>2}" for i in top_idx)
-       idx_bot_line = " ".join(f"{i:>2}" for i in bot_idx)
-
-       top_line = " ".join(f"{cell(i):>2}" for i in top_idx)
-       bot_line = " ".join(f"{cell(i):>2}" for i in bot_idx)
-
-       bar_w = len(board.__bar__[Player.WHITE])
-       bar_b = len(board.__bar__[Player.BLACK])
-       borne_w = len(board.__borne__[Player.WHITE])
-       borne_b = len(board.__borne__[Player.BLACK])
-
-       sep = "-" * max(len(top_line), 40)
-
-       lines = []
-       lines.append("      PUNTOS 12 → 23")
-       lines.append("      " + idx_top_line)
-       lines.append("      " + top_line)
-       lines.append(sep)
-       lines.append(f"BAR   | WHITE:{bar_w}  BLACK:{bar_b}")
-       lines.append(f"BORNE | WHITE:{borne_w} BLACK:{borne_b}")
-       lines.append(sep)
-       lines.append("      PUNTOS 11 → 0")
-       lines.append("      " + idx_bot_line)
-       lines.append("      " + bot_line)
-
-       return "\n".join(lines)
-
-
+       return self.game.board.ascii()
     
     def _handle_error(self, exc: Exception) -> None:
         msg_map = {
@@ -137,7 +96,7 @@ class CLI:
                  print(f"[ERROR] {msg}")
                  return
         print(f"[ERROR] {exc.__class__.__name__}: {exc}")
-
+    
     #Comandos:
     
     def cmd_start(self, args: List[str]) -> None:

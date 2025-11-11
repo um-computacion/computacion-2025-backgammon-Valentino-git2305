@@ -1,41 +1,9 @@
 [run]
-branch = True
-source =
+source = 
+    backgammon/cli
     backgammon/core
-omit =
-    backgammon/tests/*
-    backgammon/cli/cli.py
-    backgammon/core/exceptions.py
-    **/__pycache__/*
-    .venv/*
-    venv/*
-    env/*
-    backgammon/__init__.py
-    backgammon/core/__init__.py
-    backgammon/tests/*
-    backgammon/cli/*
-    backgammon/pygame_ui/*
-    **/__pycache__/*
-    **/.venv/*
-    backgammon/__init__.py
-     */tests/*
-    backgammon/cli/*
-    backgammon/pygame_ui/*
-    backgammon/__init__.py
-    backgammon/pygame_ui/main.py
-
-
+omit = 
+    backgammon/cli/__main__.py
 
 [report]
 show_missing = True
-omit =
-    backgammon/tests/*
-    backgammon/cli/cli.py
-    backgammon/core/exceptions.py
-    **/__pycache__/*
-    .venv/*
-    venv/*
-    env/*
-    backgammon/__init__.py
-    backgammon/core/__init__.py
-    backgammon/pygame_ui/main.py

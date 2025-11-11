@@ -113,6 +113,7 @@ class Board:
                 dest = src - die
             else:
                 dest = src + die
+            #Podria haber usado (dest = src + self.direction(player) * die)
 
         if dest < 0 and player is Player.WHITE:
             if not self.can_bear_off(player):
@@ -154,57 +155,50 @@ class Board:
         dest_pile.append(checker)
 
 
-    def ascii(self):
+    def ascii(self) -> str:
         """
-        Dibuja un tablero ASCII al estilo backgammon
+        Dibuja un tablero ASCII en formato compacto (estilo CLI)
+        mostrando fichas, barra y borne.
         """
-        def col_symbol(idx: int) -> list[str]:
-            pile = self.__points__[idx]
-            #Nos va a mostrar los simbolos x chekcer
-            symbols = [("W" if c.owner.name == "WHITE" else "B") for c in pile]
-            #Hasta 5 visibles
-            visible = symbols[:5]
-            return visible
+        def cell(i: int) -> str:
+            owner = self.owner_at(i)
+            if owner is None:
+               return ".."
+            ch = "W" if owner is Player.WHITE else "B"
+            n = self.count_at(i)
+            n = n if n <= 9 else 9
+            return f"{ch}{n}"
 
-        top_idxs = list(range(12, 24))
-        bot_idxs = list(range(11, -1, -1))
+        top_idx = list(range(12, 24))         # puntos superiores (12–23)
+        bot_idx = list(range(11, -1, -1))     # puntos inferiores (11–0)
 
-        #Contruí columnas de 5 filas(con topes)
-        max_rows = 5
-        top_cols = [col_symbol(i) for i in top_idxs]
-        bot_cols = [col_symbol(i) for i in bot_idxs]
-        top_labels = [f"{i+1:>2}" for i in range(12, 24)]    
-        bot_labels = [f"{i+1:>2}" for i in range(11, -1, -1)]
-        bot_cols = []
+        idx_top_line = " ".join(f"{i:>2}" for i in top_idx)
+        idx_bot_line = " ".join(f"{i:>2}" for i in bot_idx)
 
-        def build_row(cols: list[list[str]], row_from_top: int, filler: str = ' ') -> str:
-            cells = []
-            for col in cols:
-                char = col[row_from_top] if row_from_top < len(col) else filler
-                cells.append(f" {char} ")
-            return "|" + "|".join(cells) + "|"
+        top_line = " ".join(f"{cell(i):>2}" for i in top_idx)
+        bot_line = " ".join(f"{cell(i):>2}" for i in bot_idx)
+
+        bar_w = len(self.__bar__[Player.WHITE])
+        bar_b = len(self.__bar__[Player.BLACK])
+        borne_w = len(self.__borne__[Player.WHITE])
+        borne_b = len(self.__borne__[Player.BLACK])
+
+        sep = "-" * max(len(top_line), 40)
+
         lines = []
-        lines.append("         " + " ".join(top_labels))
-        lines.append("        " + "-" * (len(top_labels) * 3 + (len(top_labels) - 1)))
-
-        for r in range(max_rows):
-            lines.append(build_row(top_cols, r))
-
-        w_bar = len(self.__bar__[Player.WHITE])
-        b_bar = len(self.__bar__[Player.BLACK])
-        w_borne = len(self.__borne__[Player.WHITE])
-        b_borne = len(self.__borne__[Player.BLACK])
-
-        center = f"   BAR: W={w_bar} B={b_bar}   |   BORNE: W={w_borne} B={b_borne}"
-        lines.append(center)
-
-        for r in range(max_rows - 1, -1, -1):
-            lines.append(build_row(bot_cols, r))
-
-        lines.append("        " + "-" * (len(bot_labels) * 3 + (len(bot_labels) - 1)))
-        lines.append("         " + " ".join(bot_labels))
+        lines.append("      PUNTOS 12 → 23")
+        lines.append("      " + idx_top_line)
+        lines.append("      " + top_line)
+        lines.append(sep)
+        lines.append(f"BAR:   WHITE:{bar_w}  BLACK:{bar_b}")
+        lines.append(f"BORNE: WHITE:{borne_w}  BLACK:{borne_b}")
+        lines.append(sep)
+        lines.append("      PUNTOS 11 → 0")
+        lines.append("      " + idx_bot_line)
+        lines.append("      " + bot_line)
 
         return "\n".join(lines)
+
 
     def __str__(self):#Nos da en texto como esta el tablero
         output = []
@@ -218,4 +212,4 @@ class Board:
             else:
                 output.append(f"{i:2d}: vacio")
         
-        return "\n".join(output)
+        return "\n".join(output)#une todos los elementos de output en un string separado por saltos de linea
