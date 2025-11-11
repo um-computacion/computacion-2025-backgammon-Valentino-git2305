@@ -1,0 +1,9 @@
+[run]
+source = 
+    backgammon/cli
+    backgammon/core
+omit = 
+    backgammon/cli/__main__.py
+
+[report]
+show_missing = True
